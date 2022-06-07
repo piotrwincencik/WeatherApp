@@ -18,10 +18,10 @@ namespace Weather
 
     class WeatherForecast
     {
-        public class Cordinates
+        public class coord
         {
-            public double longitude { get; set; }
-            public double latitude { get; set; }
+            public double lon { get; set; }
+            public double lat { get; set; }
         }
 
         public class Weather
@@ -51,14 +51,39 @@ namespace Weather
 
         public class Root
         {
-            public Cordinates cordinates { get; set; }
+            public coord coord { get; set; }
             public List<Weather> weather { get; set; }
             public Main main { get; set; }
             public Wind wind { get; set; }
             public sys sys { get; set; }
+            public long timezone { get; set; }
+
         }
 
     }
+    class WeekWeather
+    {
+        public class temp
+        {
+            public double day { get; set; }
+        }
+        public class weather
+        {
+            public string main { get; set; }
+            public string description { get; set; }
+            public string icon { get; set; }
+        }
+        public class daily
+        {
+            public long dt { get; set; }
+            public temp temp { get; set; }
+            public List<weather> weather { get; set; }
+        }
 
+        public class WeekWeatherInfo
+        {
+            public List<daily> daily { get; set; }
+        }
+    }
 
 }

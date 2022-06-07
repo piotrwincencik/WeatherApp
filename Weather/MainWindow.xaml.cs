@@ -15,7 +15,10 @@ using System.Windows.Shapes;
 using Newtonsoft.Json;
 using System.Net;
 using System.ComponentModel;
-
+using System.Xml.Linq;
+using Microsoft.Win32;
+using System.IO;
+using static Weather.WeekControl;
 
 namespace Weather
 {
@@ -32,7 +35,7 @@ namespace Weather
 
         string APIKey = "5bec5f1a1460771fdab0079a0261ee62";
 
-        
+
         public void DefaultTime()
         {
             DateTimeBox.Text = DateTime.Now.ToString("dddd , hh:mm:ss");
@@ -41,38 +44,86 @@ namespace Weather
         public void buttonSearch_Click(object sender, EventArgs e)
         {
             getWeather();
+            getWeekWeather();
         }
 
-        void getWeather()
+        public double lon;
+        public double lat;
+
+        public void getWeather()
         {
             using (WebClient web = new WebClient())
             {
                 string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}", SearchCity.Text, APIKey);
+
+
                 var json = web.DownloadString(url);
                 WeatherForecast.Root Forecast = JsonConvert.DeserializeObject<WeatherForecast.Root>(json);
 
                 double temperatura = Math.Round((Forecast.main.temp) - 273);
+                var sunrise = new DateTime(((Forecast.sys.sunrise + Forecast.timezone) * 1000));
 
-                BoxSunset.Text = convertDateTime(Forecast.sys.sunset).ToShortTimeString();
-                BoxSunrise.Text = convertDateTime(Forecast.sys.sunrise).ToShortTimeString();
+                BoxSunset.Text = (UnixTimestampToDateTime(Forecast.sys.sunset)).ToString("HH:mm");
+                BoxSunrise.Text = (UnixTimestampToDateTime(Forecast.sys.sunrise)).ToString("HH:mm");
+
+                DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(1000);
+
                 BoxWind.Text = Forecast.wind.speed.ToString();
                 DateTimeBox.Text = DateTime.Now.ToString("dddd, hh:mm");
-                BoxTemperature.Text = temperatura.ToString() + "°";
+                BoxTemperature.Text = temperatura.ToString() + "C";
                 BoxWeather.Text = Forecast.weather[0].description;
-                BoxHumidity.Text = "Wilgotność - " + Forecast.main.humidity.ToString() + "%";
+                BoxHumidity.Text = "Humidity - " + Forecast.main.humidity.ToString() + "%";
 
-                Image= new BitmapImage(new Uri( "https://api.openweathermap.org/img/w/" + Forecast.weather[0].icon + ".png"));
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri("https://api.openweathermap.org/img/w/" + Forecast.weather[0].icon + ".png");
+                bitmap.EndInit();
+                IconPicture.Source = bitmap;
+
+                lon = Forecast.coord.lon;
+                lat = Forecast.coord.lat;
+            }
+        }
+
+        void getWeekWeather()
+        {
+            using (WebClient web = new WebClient())
+            {
+                string url = string.Format("https://api.openweathermap.org/data/2.5/onecall?lat={0}&lon={1}&exclude=minutely,hourly,current,alerts&appid={2}", lat, lon, APIKey);
+                var json = web.DownloadString(url);
+                WeekWeather.WeekWeatherInfo WeekWeatherInfo = JsonConvert.DeserializeObject<WeekWeather.WeekWeatherInfo>(json);
+
+                WeekControl WC;
+                for(int i = 0; i < 8; i++)
+                {
+                    WC = new WeekControl();
+                    FLP.Children.Add(WC);
+
+                    WC.BoxDayWeek.Text = (UnixTimestampToDateTime(WeekWeatherInfo.daily[i].dt)).ToString("ddd");
+                    WC.TemperatureWeek.Text = (WeekWeatherInfo.daily[i].temp).ToString();
+
+
+                    BitmapImage bitmap2 = new BitmapImage();
+                    bitmap2.BeginInit();
+                    bitmap2.UriSource = new Uri("https://api.openweathermap.org/img/w/" + WeekWeatherInfo.daily[i].weather[0].icon + ".png");
+                    bitmap2.EndInit();
+
+                    WC.BoxPictureWeek.Source = bitmap2;
+                }
+
 
 
             }
         }
+        
 
-        DateTime convertDateTime(long millisec)
+
+
+        public static DateTime UnixTimestampToDateTime(long unixTime)
         {
-            DateTime day = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc).ToLocalTime();
-            day = day.AddSeconds(millisec).ToLocalTime();
-
-            return day;
+            DateTime unixStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Local);
+            long unixTimeStampInTicks = (long)(unixTime * TimeSpan.TicksPerSecond);
+            return new DateTime(unixStart.Ticks + unixTimeStampInTicks, System.DateTimeKind.Local).AddHours(-5);
         }
 
         
@@ -82,5 +133,33 @@ namespace Weather
 
         }
 
+        public void SaveFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            WebClient web = new WebClient();
+            string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}", SearchCity.Text, APIKey);
+            string json = web.DownloadString(url);
+            WeatherForecast.Root Forecast = JsonConvert.DeserializeObject<WeatherForecast.Root>(json);
+
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Dokument w formacie json (*.json)|*.json";
+            dialog.Title = "Zapisz notowania do pliku JSON";
+            if (dialog.ShowDialog() == true)
+            {
+                File.WriteAllText(dialog.FileName, (json).ToString());
+            }
+        }
+
+      /*  public void DonwloadData()
+        {
+
+            WebClient web = new WebClient();
+            web.Headers.Add("Accept", "application/xml");
+            string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}", SearchCity.Text, APIKey);
+            
+            var json = web.DownloadString(url);
+            WeatherForecast.Root Forecast = JsonConvert.DeserializeObject<WeatherForecast.Root>(json);
+            XDocument doc = XDocument.Parse(url);
+        }*/
+       
     }
 }

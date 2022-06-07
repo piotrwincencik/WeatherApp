@@ -6,14 +6,14 @@
         xmlns:local="clr-namespace:Weather"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Grid Background="Transparent">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="469"/>
+            <ColumnDefinition Width="259"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <!-- Lewa strona-->
-        <Border CornerRadius="30 0 0 30" Background="#FFFFFF" BorderThickness="1" BorderBrush="#787878" Margin="0,0,1,0">
+        <Border CornerRadius="30 0 0 30" BorderThickness="1" Margin="0,0,1,0">
             <StackPanel>
                 <!--Szukaj-->
                 <Border x:Name="Search" BorderBrush="#787878" BorderThickness="1" CornerRadius="15" Width="200" HorizontalAlignment="Center" Margin="0 35 0 0">
@@ -28,18 +28,19 @@
                         <Button x:Name="buttonSearch" Background="Transparent" BorderBrush="Transparent" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Width="27" Click="buttonSearch_Click">
                             <Image Source="/Images/search.png" Height="18" Margin="5,0,0,2" VerticalAlignment="Bottom"/>
                         </Button>
-                        <TextBlock FontSize="14" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" x:Name="textSearch" Text="Szukaj..." Grid.ColumnSpan="4"/>
-                        <TextBox x:Name="SearchCity" Background="Transparent" FontSize="14" Margin="10,0,0,0" Grid.Column="1" BorderBrush="Transparent" TextChanged="TextBox_TextChanged" Grid.ColumnSpan="4" />
+                        <TextBlock FontSize="14" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" x:Name="textSearch"  Grid.ColumnSpan="4"/>
+                        <TextBox x:Name="SearchCity" Background="Transparent" FontSize="14" Margin="10,0,0,0" Grid.Column="1" Text="Search..." BorderBrush="Transparent" TextChanged="TextBox_TextChanged" Grid.ColumnSpan="4" />
                     </Grid>
                 </Border>
 
+                <!--Pogoda dziś-->
                 <StackPanel Margin="50 60 0 0">
                     <Image x:Name="IconPicture" Source="/Images/sun.png" Width="80" HorizontalAlignment="Left"/>
-                    <TextBlock x:Name="BoxTemperature" Text="12C" FontSize="46" Margin="0 20 0 0"/>
+                    <TextBlock x:Name="BoxTemperature" FontSize="46" Margin="0 20 0 0" Text="N/A"/>
                     <TextBlock x:Name="DateTimeBox" Text="Monday, 16:00" FontWeight="SemiBold"/>
                     <Separator Background="#787878" Height="0.8" Margin="3 30 40 30"/>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Images/cloudy.png" Width="10" Height="10"/>
+                        <Image x:Name="IconPicture2" Source="/Images/cloudy.png" Width="10" Height="10"/>
                         <TextBlock x:Name="BoxWeather" Text="Mostly Cloudy" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -48,60 +49,110 @@
                     </StackPanel>
                 </StackPanel>
 
+                <!--Zapisz-->
+                <Border x:Name="Save" BorderBrush="#787878" BorderThickness="1" CornerRadius="15" Width="58" HorizontalAlignment="Center" Margin="155 55 0 0" Height="33">
+                    <Grid Margin="7 7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="19*"/>
+                            <ColumnDefinition Width="9*"/>
+                            <ColumnDefinition Width="126*"/>
+                            <ColumnDefinition Width="7*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="SaveFileButton" Click="SaveFileButton_Click" Background="Transparent" BorderBrush="Transparent" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Width="84" Grid.ColumnSpan="5" >
+                        </Button>
+                        <TextBlock FontSize="14" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" x:Name="textSave"  Grid.ColumnSpan="4"/>
+                        <TextBox x:Name="SaveFile" Background="Transparent" FontSize="12" Grid.Column="1" Text="Save..." BorderBrush="Transparent" Grid.ColumnSpan="4" />
+                    </Grid>
+                </Border>
+
 
 
             </StackPanel>
         </Border>
         <!--Prawa strona-->
-        <Border CornerRadius="0 30 30 0" Background="#b4b4b4" Margin="468,0,0,0" Grid.ColumnSpan="2" >
+        <Border CornerRadius="0 30 30 0" Background="#b4b4b4" Margin="258,0,0,0" Grid.ColumnSpan="2" RenderTransformOrigin="0.499,0.566" BorderThickness="1">
             <StackPanel>
 
 
-                <TextBlock FontSize="16" FontWeight="SemiBold" Margin="40 10 0 10"><Run Language="pl-pl" Text="Dodatkowe informacje"/></TextBlock>
+                <Grid Margin="20 30 40 10">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Label Content="Week" FontSize="16" FontWeight="SemiBold" Margin="15 0 0 0"/>
+                    </StackPanel>
+                </Grid>
 
-                <!--Widget Section-->
-                <WrapPanel Margin="40 0 0 0">
-                    <!--Widget 1-->
-                    <Border Background="White" Width="210" Height="151" Padding="20 15" Margin="0 15 12 0" BorderThickness="1" BorderBrush="#787878" >
+                <!--Dni tygodnia-->
+                <StackPanel x:Name="FLP" Orientation="Horizontal" Margin="40 20 0 20" Height="100">
+                    <Label></Label>
+                </StackPanel>
+
+
+                <!--Dolny Panel-->
+                <TextBlock Text="Today's Highlights" FontSize="16" FontWeight="SemiBold" Margin="40 10 0 10"/>
+                <!--Wiatr-->
+                <WrapPanel Margin="40 0 40 0">
+                    <Border Width="210" Height="170" Padding="20 15" BorderThickness="1" CornerRadius="10" Margin="0 0 45 0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="White" />
+                                <Setter Property="BorderBrush" Value="#e9e9e9" />
+
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="BorderBrush" Value="#03A9F4" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <Grid>
-                            <TextBlock FontSize="16" FontWeight="SemiBold" VerticalAlignment="Top"><Run Language="pl-pl" Text="Wiatr"/></TextBlock>
+                            <TextBlock FontSize="16" FontWeight="SemiBold" VerticalAlignment="Top"><Run Text="Wi"/><Run Language="pl-pl" Text="nd"/></TextBlock>
+                            <StackPanel>
 
+                            </StackPanel>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="BoxWind" Text="7.70" FontSize="34" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="BoxWind" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
                                 <TextBlock Text="km/h" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Image Source="/Images/wind.png" Width="25" Height="25" Margin="0 0 10 0"/>
-                                <TextBlock Text="WSW" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom"/>
                         </Grid>
                     </Border>
-                    <Border Background="White" Width="210" Height="180" Padding="20 15" Margin="0 15 12 0" BorderThickness="1" BorderBrush="#787878">
-                        <StackPanel>
-                            <TextBlock FontSize="16" FontWeight="SemiBold" VerticalAlignment="Top"><Run Language="pl-pl" Text="Wschód i zachód"/></TextBlock>
+                    <!--Wschód i zachód-->
+                    <Border Width="205" Height="170" Padding="20 15" BorderThickness="1" CornerRadius="10">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="White" />
+                                <Setter Property="BorderBrush" Value="#e9e9e9" />
 
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 25 0 0">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="BorderBrush" Value="#03A9F4" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock FontSize="16" FontWeight="SemiBold" VerticalAlignment="Top"><Run Language="pl-pl" Text="Sunset and sunrise"/><LineBreak/><Run Language="pl-pl"/></TextBlock>
+
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 0 0">
                                 <Image Source="/Images/sunrise.png" Width="40" Height="40" Margin="0 0 10 0"/>
                                 <StackPanel>
-                                    <TextBlock x:Name="BoxSunrise" Text="6:35 AM" FontSize="16" FontWeight="SemiBold"/>
-                                    <TextBlock Text="-1m 46s" FontSize="12" Margin="0 2 0 0" Foreground="#a0a0a0"/>
+                                    <TextBlock x:Name="BoxSunrise" FontSize="16" FontWeight="SemiBold"><Run Language="pl-pl" Text="N/A"/><Run Text=" "/></TextBlock>
+                                    <TextBlock FontSize="12" Margin="0 2 0 0" Foreground="#a0a0a0"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 10 0 0">
                                 <Image Source="/Images/sunset.png" Width="40" Height="40" Margin="0 0 10 0"/>
                                 <StackPanel>
-                                    <TextBlock x:Name="BoxSunset" Text="5:12 AM" FontSize="16" FontWeight="SemiBold"/>
-                                    <TextBlock Text="+2m 15s" FontSize="12" Margin="0 2 0 0" Foreground="#a0a0a0"/>
+                                    <TextBlock x:Name="BoxSunset" FontSize="16" FontWeight="SemiBold"><Run Language="pl-pl" Text="N/A"/><LineBreak/><Run Language="pl-pl"/><Run Text=" "/></TextBlock>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </Border>
-
-                    <!--Widget 3-->
                 </WrapPanel>
 
             </StackPanel>
         </Border>
+        <CheckBox Content="CheckBox" Grid.Column="1" HorizontalAlignment="Left" Margin="897,403,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
