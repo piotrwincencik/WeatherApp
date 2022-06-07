@@ -60,7 +60,7 @@ namespace Weather
                 var json = web.DownloadString(url);
                 WeatherForecast.Root Forecast = JsonConvert.DeserializeObject<WeatherForecast.Root>(json);
 
-                double temperatura = Math.Round((Forecast.main.temp) - 273);
+                double temperature = Math.Round((Forecast.main.temp) - 273);
                 var sunrise = new DateTime(((Forecast.sys.sunrise + Forecast.timezone) * 1000));
 
                 BoxSunset.Text = (UnixTimestampToDateTime(Forecast.sys.sunset)).ToString("HH:mm");
@@ -70,15 +70,16 @@ namespace Weather
 
                 BoxWind.Text = Forecast.wind.speed.ToString();
                 DateTimeBox.Text = DateTime.Now.ToString("dddd, hh:mm");
-                BoxTemperature.Text = temperatura.ToString() + "C";
+                BoxTemperature.Text = temperature.ToString() + "C";
                 BoxWeather.Text = Forecast.weather[0].description;
-                BoxHumidity.Text = "Humidity - " + Forecast.main.humidity.ToString() + "%";
+                BoxHumidity.Text = "humidity - " + Forecast.main.humidity.ToString() + "%";
 
                 BitmapImage bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri("https://api.openweathermap.org/img/w/" + Forecast.weather[0].icon + ".png");
                 bitmap.EndInit();
                 IconPicture.Source = bitmap;
+                IconPicture2.Source = bitmap;
 
                 lon = Forecast.coord.lon;
                 lat = Forecast.coord.lat;
@@ -93,14 +94,16 @@ namespace Weather
                 var json = web.DownloadString(url);
                 WeekWeather.WeekWeatherInfo WeekWeatherInfo = JsonConvert.DeserializeObject<WeekWeather.WeekWeatherInfo>(json);
 
+                
+
                 WeekControl WC;
-                for(int i = 0; i < 8; i++)
+                for(int i = 0; i < 5; i++)
                 {
                     WC = new WeekControl();
                     FLP.Children.Add(WC);
 
                     WC.BoxDayWeek.Text = (UnixTimestampToDateTime(WeekWeatherInfo.daily[i].dt)).ToString("ddd");
-                    WC.TemperatureWeek.Text = (WeekWeatherInfo.daily[i].temp).ToString();
+                    WC.TemperatureWeek.Text = Math.Round(WeekWeatherInfo.daily[i].temp.day -273).ToString() + "C";
 
 
                     BitmapImage bitmap2 = new BitmapImage();
@@ -116,17 +119,12 @@ namespace Weather
             }
         }
         
-
-
-
         public static DateTime UnixTimestampToDateTime(long unixTime)
         {
             DateTime unixStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Local);
             long unixTimeStampInTicks = (long)(unixTime * TimeSpan.TicksPerSecond);
             return new DateTime(unixStart.Ticks + unixTimeStampInTicks, System.DateTimeKind.Local).AddHours(-5);
         }
-
-        
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -142,24 +140,12 @@ namespace Weather
 
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = "Dokument w formacie json (*.json)|*.json";
-            dialog.Title = "Zapisz notowania do pliku JSON";
+            dialog.Title = "Zapisz pogodę do pliku JSON";
             if (dialog.ShowDialog() == true)
             {
                 File.WriteAllText(dialog.FileName, (json).ToString());
             }
         }
 
-      /*  public void DonwloadData()
-        {
-
-            WebClient web = new WebClient();
-            web.Headers.Add("Accept", "application/xml");
-            string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}", SearchCity.Text, APIKey);
-            
-            var json = web.DownloadString(url);
-            WeatherForecast.Root Forecast = JsonConvert.DeserializeObject<WeatherForecast.Root>(json);
-            XDocument doc = XDocument.Parse(url);
-        }*/
-       
     }
 }
